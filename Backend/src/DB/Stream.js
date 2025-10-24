@@ -22,5 +22,15 @@ export const createStreamUser = async (userData) => {
     }
 };
 
+export const upsertStreamUser = async (userData) => {
+    try {
+        await Streamclient.upsertUsers([userData]);
+        return userData;
+    }catch(error){
+        console.error("Error upserting Stream user:", error);
+        throw error;
+    }
+}
+
 
  

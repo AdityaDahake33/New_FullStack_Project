@@ -2,7 +2,7 @@ import express from "express";
 import User from "../models/User.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { createStreamUser } from "../DB/Stream.js";
+import { createStreamUser, upsertStreamUser } from "../DB/Stream.js";
 
 
 
@@ -131,6 +131,16 @@ export async function onboard(req, res) {
 
         if(!updatedUser){
             return res.status(404).json({error: "User not found"});
+        }
+
+        try{
+            await upsertStreamUser({
+                id: updatedUser._id.toString(),
+                name: updatedUser.FullName,
+                image: updatedUser.profilepic || "",
+            });
+        }catch(error){
+            console.error("Error upserting Stream user:", error);
         }
 
         res.status(200).json({success: true, user: updatedUser});
