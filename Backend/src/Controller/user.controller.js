@@ -124,9 +124,47 @@ export async function getFriendRequests(req, res){
 
 
         res.status(200).json({incoming,acceptFriendRequest});
-        
+
     }catch (error){
         console.error("Error in getFriendRequests:", error);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+}
+
+export async function getOutgoingFriendRequests(req, res){
+    try{
+        const outgoing = await FriendRequest.find({
+            sender: req.user.id,
+            status: "pending",
+        }).populate("recipient","FullName profilepic nativelanguage learningLanguage ");
+        res.status(200).json(outgoing);
+    }catch (error){
+        console.error("Error in getOutgoingFriendRequests:", error);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+}
+
+export async function rejectFriendRequest(req, res){
+    try{
+        const {id:requestId} = req.params
+
+        const friendRequest = await FriendRequest.findById(requestId);
+
+        if(!friendRequest){
+            return res.status(404).json({ message:"Friend request not found"})
+        }
+
+        if(friendRequest.sender.toString() !== req.user.id){
+            return res.status(403).json({ message:"You are not authorized to reject this friend request"})
+        }
+
+        friendRequest.status = "rejected";
+        await friendRequest.save();
+
+        return res.status(200).json({ message:"Friend request rejected successfully"})
+        
+    }catch (error){
+        console.error("Error in rejectFriendRequest:", error);
         return res.status(500).json({ error: "Internal server error" });
     }
 }
