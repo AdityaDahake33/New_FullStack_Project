@@ -5,13 +5,20 @@ import usersRoutes from "./routes/user.route.js"
 import { connectDB } from './DB/db.js'
 import cookieParser from 'cookie-parser';
 import chatRoutes from "./routes/chat.routes.js"
+import cors from 'cors';
 
 
 
 dotenv.config()
 
+
 const app = express()
 const PORT = process.env.PORT
+
+app.use(cors({
+    origin: 'http://localhost:5173', 
+    credentials: true
+}));
 
 app.use(express.json());
 app.use(cookieParser());
